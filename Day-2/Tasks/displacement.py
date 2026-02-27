@@ -15,5 +15,16 @@ def displacement(lat1, lon1, lat2, lon2):
     return R * c  # in kilometers
 
 
+
+def pyhtagoras(lat1, lon1, lat2, lon2):
+    R = 6371
+
+    x = math.radians(lon2 - lon1) * math.cos(math.radians((lat1 + lat2) / 2))
+    y = math.radians(lat2 - lat1)
+
+    return R * math.sqrt(x*x + y*y)
+
+
 # Example
-print(displacement(31.464042679657418, 74.44210418319426, 31.454092808708573, 74.29139241188636))  # Karachi → Lahore
+print(displacement(31.464042679657418, 74.44210418319426, 31.454092808708573, 74.29139241188636))  # LGU → Johar Town C Block
+print(pyhtagoras(31.464042679657418, 74.44210418319426, 31.454092808708573, 74.29139241188636))
