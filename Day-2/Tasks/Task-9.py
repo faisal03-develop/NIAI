@@ -1,0 +1,18 @@
+#Solve the Quadratic Equation...
+
+import cmath
+
+a=1
+b=5
+c=4
+
+#Discriminant
+
+d = (b**2) - (4*a*c)
+
+#Soltions
+
+sol1 = (-b-cmath.sqrt(d))/ (2*a)
+sol2 = (-b+cmath.sqrt(d))/ (2*a)
+
+print('the solutions are {0} and {1}'.format(sol1, sol2))
