@@ -28,3 +28,21 @@ def pyhtagoras(lat1, lon1, lat2, lon2):
 # Example
 print(displacement(31.464042679657418, 74.44210418319426, 31.454092808708573, 74.29139241188636))  # LGU → Johar Town C Block
 print(pyhtagoras(31.464042679657418, 74.44210418319426, 31.454092808708573, 74.29139241188636))
+
+
+
+def speed(distance, time):
+    return distance / time
+
+speed_ = speed(22.8,0.5)
+
+print('Speed will be: {0}'.format(speed_))
+
+# def displacement_time(displacement, speed):
+#     return speed/displacement
+
+
+# displace_ = pyhtagoras(31.464042679657418, 74.44210418319426, 31.454092808708573, 74.29139241188636)
+
+# time = displacement_time()
+print('The time needed to cover the displacement is : ')
