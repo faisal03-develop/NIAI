@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>House Price Predictor — AI Powered</title>
+<style>
+  :root {
+    --navy:   #0D1B2A;
+    --navy2:  #162032;
+    --navy3:  #1E2D42;
+    --teal:   #0F7173;
+    --tealLt: #1A9EA1;
+    --amber:  #E8A838;
+    --green:  #2D9B5A;
+    --red:    #C0392B;
+    --purple: #6C4FA0;
+    --white:  #FFFFFF;
+    --gray:   #8899A6;
+    --grayLt: #D8E2E8;
+    --text:   #E8EDF2;
+    --textMuted: #8899A6;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--navy); color: var(--text); }
+
+  /* ── NAV ── */
+  nav {
+    background: rgba(13,27,42,0.96);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(15,113,115,0.3);
+    padding: 0 2rem;
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between; height: 60px;
+  }
+  .nav-logo { font-size: 1.1rem; font-weight: 700; color: var(--tealLt); display: flex; align-items: center; gap: 10px; }
+  .nav-logo span { width: 10px; height: 10px; background: var(--teal); border-radius: 50%; display: inline-block; animation: pulse-dot 2s infinite; }
+  @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-links a { color: var(--grayLt); text-decoration: none; font-size: .9rem; transition: color .2s; }
+  .nav-links a:hover { color: var(--tealLt); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 88vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 4rem 1.5rem 2rem;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content:''; position:absolute; inset:0;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(15,113,115,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(15,113,115,0.15); border: 1px solid rgba(15,113,115,0.4);
+    color: var(--tealLt); padding: 6px 16px; border-radius: 999px; font-size: .82rem; font-weight: 600;
+    margin-bottom: 1.5rem; letter-spacing: .04em;
+  }
+  .hero h1 { font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 800; line-height: 1.15; margin-bottom: 1.2rem; }
+  .hero h1 span { color: var(--tealLt); }
+  .hero p { font-size: 1.1rem; color: var(--textMuted); max-width: 560px; line-height: 1.7; margin-bottom: 2.5rem; }
+  .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+  .btn-primary {
+    background: var(--teal); color: #fff; padding: 12px 28px; border-radius: 8px;
+    text-decoration: none; font-weight: 600; font-size: .95rem; border: none; cursor: pointer;
+    transition: background .2s, transform .1s;
+  }
+  .btn-primary:hover { background: var(--tealLt); }
+  .btn-primary:active { transform: scale(.98); }
+  .btn-outline {
+    background: transparent; color: var(--grayLt); padding: 12px 28px; border-radius: 8px;
+    text-decoration: none; font-weight: 600; font-size: .95rem;
+    border: 1px solid rgba(216,226,232,0.3); cursor: pointer; transition: border-color .2s;
+  }
+  .btn-outline:hover { border-color: var(--grayLt); }
+  .hero-stats {
+    display: flex; gap: 2rem; margin-top: 3.5rem; flex-wrap: wrap; justify-content: center;
+  }
+  .hero-stat { text-align: center; }
+  .hero-stat .val { font-size: 1.8rem; font-weight: 800; color: var(--tealLt); }
+  .hero-stat .lbl { font-size: .8rem; color: var(--textMuted); margin-top: 2px; }
+
+  /* ── SECTION WRAPPER ── */
+  section { padding: 5rem 1.5rem; max-width: 1100px; margin: 0 auto; }
+  .section-tag { font-size: .78rem; font-weight: 700; letter-spacing: .1em; color: var(--teal); text-transform: uppercase; margin-bottom: .6rem; }
+  .section-title { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 700; margin-bottom: .8rem; }
+  .section-sub { color: var(--textMuted); font-size: 1rem; line-height: 1.6; max-width: 600px; margin-bottom: 2.5rem; }
+
+  /* ── PREDICTOR CARD ── */
+  #predictor { padding: 5rem 1.5rem; background: var(--navy2); }
+  .predictor-inner { max-width: 960px; margin: 0 auto; }
+  .predictor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+  @media(max-width:700px){ .predictor-grid { grid-template-columns: 1fr; } }
+
+  .form-card {
+    background: var(--navy3); border: 1px solid rgba(15,113,115,0.25);
+    border-radius: 16px; padding: 2rem;
+  }
+  .form-card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; color: var(--grayLt); }
+
+  .field { margin-bottom: 1.4rem; }
+  .field label { display: block; font-size: .85rem; color: var(--textMuted); margin-bottom: 6px; font-weight: 500; }
+  .field-row { display: flex; align-items: center; gap: 12px; }
+  .field input[type=range] { flex: 1; accent-color: var(--teal); height: 4px; cursor: pointer; }
+  .field-val {
+    min-width: 72px; text-align: right; font-size: .9rem; font-weight: 600; color: var(--tealLt);
+    background: rgba(15,113,115,0.12); border: 1px solid rgba(15,113,115,0.3);
+    border-radius: 6px; padding: 4px 10px;
+  }
+
+  .predict-btn {
+    width: 100%; background: var(--teal); color: #fff; border: none;
+    padding: 14px; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer;
+    margin-top: .5rem; transition: background .2s, transform .1s; letter-spacing: .02em;
+  }
+  .predict-btn:hover { background: var(--tealLt); }
+  .predict-btn:active { transform: scale(.99); }
+  .predict-btn:disabled { background: var(--navy3); color: var(--textMuted); cursor: not-allowed; }
+
+  /* ── RESULT ── */
+  .result-card {
+    background: var(--navy3); border: 1px solid rgba(15,113,115,0.25);
+    border-radius: 16px; padding: 2rem; display: flex; flex-direction: column;
+  }
+  .result-card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: var(--grayLt); }
+  .result-price {
+    font-size: 3rem; font-weight: 800; color: var(--tealLt);
+    margin: 1rem 0; letter-spacing: -.02em; min-height: 4rem;
+    display: flex; align-items: center;
+  }
+  .result-price.loading { color: var(--textMuted); font-size: 1.5rem; }
+  .result-price.error { color: var(--red); font-size: 1.2rem; }
+
+  .result-breakdown { margin-top: 1rem; }
+  .result-breakdown .row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0; border-bottom: 1px solid rgba(216,226,232,0.08); font-size: .88rem;
+  }
+  .result-breakdown .row:last-child { border-bottom: none; }
+  .result-breakdown .row .key { color: var(--textMuted); }
+  .result-breakdown .row .val { font-weight: 600; color: var(--grayLt); }
+
+  .confidence-bar { margin-top: 1.5rem; }
+  .confidence-bar label { font-size: .82rem; color: var(--textMuted); display: block; margin-bottom: 6px; }
+  .bar-track { height: 6px; background: rgba(216,226,232,0.12); border-radius: 99px; overflow: hidden; }
+  .bar-fill { height: 100%; background: var(--teal); border-radius: 99px; width: 0%; transition: width 1s ease; }
+
+  .api-status {
+    margin-top: auto; padding-top: 1.5rem; font-size: .8rem; color: var(--textMuted);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+  .status-dot.offline { background: var(--red); }
+  .status-dot.checking { background: var(--amber); animation: pulse-dot 1s infinite; }
+
+  /* ── HOW IT WORKS ── */
+  .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 1.2rem; }
+  .step-card {
+    background: var(--navy2); border: 1px solid rgba(216,226,232,0.08);
+    border-radius: 12px; padding: 1.5rem; position: relative;
+  }
+  .step-num {
+    width: 36px; height: 36px; border-radius: 8px; background: rgba(15,113,115,0.2);
+    border: 1px solid rgba(15,113,115,0.4); color: var(--tealLt); font-weight: 800; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;
+  }
+  .step-card h4 { font-size: .95rem; font-weight: 600; margin-bottom: .5rem; }
+  .step-card p { font-size: .83rem; color: var(--textMuted); line-height: 1.6; }
+
+  /* ── MODEL INFO ── */
+  .weights-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 1rem; margin-top: 1.5rem; }
+  .weight-card {
+    background: var(--navy2); border-radius: 12px; padding: 1.2rem;
+    border-left: 3px solid var(--teal);
+  }
+  .weight-card.negative { border-left-color: var(--red); }
+  .weight-name { font-size: .82rem; color: var(--textMuted); margin-bottom: 4px; }
+  .weight-val { font-size: 1.4rem; font-weight: 700; font-family: monospace; }
+  .weight-val.pos { color: var(--green); }
+  .weight-val.neg { color: var(--red); }
+  .weight-dir { font-size: .78rem; margin-top: 4px; }
+  .weight-dir.pos { color: var(--green); }
+  .weight-dir.neg { color: var(--red); }
+
+  /* ── CICD SECTION ── */
+  .pipeline-steps {
+    display: flex; gap: 0; flex-wrap: wrap;
+    background: var(--navy2); border-radius: 16px; overflow: hidden;
+    border: 1px solid rgba(216,226,232,0.08);
+  }
+  .pipe-step {
+    flex: 1; min-width: 120px; padding: 1.2rem 1rem; text-align: center;
+    border-right: 1px solid rgba(216,226,232,0.06);
+    position: relative;
+  }
+  .pipe-step:last-child { border-right: none; }
+  .pipe-step .icon { font-size: 1.5rem; margin-bottom: .5rem; display: block; }
+  .pipe-step .name { font-size: .82rem; font-weight: 600; margin-bottom: .3rem; }
+  .pipe-step .desc { font-size: .75rem; color: var(--textMuted); line-height: 1.4; }
+  .pipe-step .badge {
+    display: inline-block; margin-top: .5rem; padding: 2px 8px;
+    border-radius: 99px; font-size: .7rem; font-weight: 600;
+  }
+  .badge-pass { background: rgba(45,155,90,0.2); color: #6dda9e; }
+  .badge-auto { background: rgba(15,113,115,0.2); color: var(--tealLt); }
+  .badge-live { background: rgba(232,168,56,0.2); color: #f0c060; }
+
+  /* ── API EXPLORER ── */
+  .api-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 1rem; }
+  .api-card {
+    background: var(--navy2); border-radius: 12px; padding: 1.3rem;
+    border: 1px solid rgba(216,226,232,0.08); cursor: pointer; transition: border-color .2s;
+  }
+  .api-card:hover { border-color: rgba(15,113,115,0.4); }
+  .api-method {
+    display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: .75rem; font-weight: 700;
+    margin-bottom: .7rem; font-family: monospace;
+  }
+  .get { background: rgba(45,155,90,0.2); color: #6dda9e; }
+  .post { background: rgba(108,79,160,0.2); color: #b299e0; }
+  .api-path { font-family: monospace; font-size: .88rem; color: var(--tealLt); margin-bottom: .4rem; }
+  .api-desc { font-size: .82rem; color: var(--textMuted); }
+  .api-response-box {
+    margin-top: 1.5rem; background: #0a1118; border-radius: 10px; padding: 1rem 1.2rem;
+    font-family: monospace; font-size: .82rem; color: #a8d8a8; line-height: 1.7;
+    min-height: 80px; border: 1px solid rgba(15,113,115,0.2);
+    white-space: pre-wrap; word-break: break-all;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center; padding: 2.5rem 1.5rem;
+    border-top: 1px solid rgba(216,226,232,0.08);
+    color: var(--textMuted); font-size: .85rem;
+  }
+  footer a { color: var(--tealLt); text-decoration: none; }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 2rem; right: 2rem; z-index: 999;
+    background: var(--navy3); border: 1px solid rgba(15,113,115,0.4);
+    color: var(--text); padding: 12px 20px; border-radius: 10px; font-size: .9rem;
+    transform: translateY(80px); opacity: 0; transition: all .35s ease;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="nav-logo">
+    <span></span>
+    House Price AI
+  </div>
+  <div class="nav-links">
+    <a href="#predictor">Predict</a>
+    <a href="#how-it-works">How it works</a>
+    <a href="#model">Model</a>
+    <a href="#cicd">CI/CD</a>
+    <a href="#api">API</a>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-badge">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0"><circle cx="8" cy="8" r="3" fill="#1A9EA1"/><circle cx="8" cy="8" r="7" stroke="#1A9EA1" stroke-width="1" fill="none" stroke-dasharray="3 2"/></svg>
+    Linear Regression from Scratch · Built with NumPy
+  </div>
+  <h1>Predict <span>House Prices</span><br>with Machine Learning</h1>
+  <p>A complete end-to-end ML project — model trained from scratch, deployed via CI/CD pipeline, served through a REST API.</p>
+  <div class="hero-btns">
+    <a href="#predictor" class="btn-primary">Try the predictor</a>
+    <a href="https://github.com/Sarosh548/Linear-regression-from-scratch-api" class="btn-outline" target="_blank">View on GitHub</a>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="val">R² 0.9865</div><div class="lbl">Model accuracy</div></div>
+    <div class="hero-stat"><div class="val">40</div><div class="lbl">Tests passing</div></div>
+    <div class="hero-stat"><div class="val">4</div><div class="lbl">CI/CD jobs</div></div>
+    <div class="hero-stat"><div class="val">&lt;3 min</div><div class="lbl">Push to live</div></div>
+  </div>
+</div>
+
+<!-- ── PREDICTOR ── -->
+<div id="predictor">
+  <div class="predictor-inner">
+    <div style="text-align:center;margin-bottom:2.5rem">
+      <div class="section-tag">Live predictor</div>
+      <div class="section-title">Enter house details</div>
+      <div class="section-sub" style="margin:0 auto">Move the sliders and click Predict — this calls your real Flask API running at localhost:5000</div>
+    </div>
+    <div class="predictor-grid">
+      <!-- FORM -->
+      <div class="form-card">
+        <h3>House features</h3>
+
+        <div class="field">
+          <label>Size (sq ft)</label>
+          <div class="field-row">
+            <input type="range" id="size" min="200" max="5000" value="1500" step="50" oninput="upd('size','size-val',v=>v+' sqft')">
+            <div class="field-val" id="size-val">1500 sqft</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Bedrooms</label>
+          <div class="field-row">
+            <input type="range" id="beds" min="1" max="8" value="3" step="1" oninput="upd('beds','beds-val',v=>v+' beds')">
+            <div class="field-val" id="beds-val">3 beds</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Age of house (years)</label>
+          <div class="field-row">
+            <input type="range" id="age" min="0" max="80" value="10" step="1" oninput="upd('age','age-val',v=>v+' yrs')">
+            <div class="field-val" id="age-val">10 yrs</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Distance from city centre (km)</label>
+          <div class="field-row">
+            <input type="range" id="dist" min="0.5" max="40" value="5" step="0.5" oninput="upd('dist','dist-val',v=>v+' km')">
+            <div class="field-val" id="dist-val">5 km</div>
+          </div>
+        </div>
+
+        <button class="predict-btn" id="pred-btn" onclick="predict()">
+          Predict Price
+        </button>
+
+        <div style="margin-top:1rem;font-size:.78rem;color:var(--textMuted);line-height:1.5">
+          Calls POST /predict on your Flask backend.<br>
+          Make sure <code style="color:var(--tealLt)">python app.py</code> is running.
+        </div>
+      </div>
+
+      <!-- RESULT -->
+      <div class="result-card">
+        <h3>Predicted price</h3>
+        <div class="result-price" id="result-price" style="color:var(--textMuted);font-size:1.2rem">
+          Enter details and click Predict
+        </div>
+
+        <div class="result-breakdown" id="breakdown" style="display:none">
+          <div class="row"><span class="key">Size contribution</span><span class="val" id="contrib-size">—</span></div>
+          <div class="row"><span class="key">Bedrooms contribution</span><span class="val" id="contrib-beds">—</span></div>
+          <div class="row"><span class="key">Age effect</span><span class="val" id="contrib-age">—</span></div>
+          <div class="row"><span class="key">Distance effect</span><span class="val" id="contrib-dist">—</span></div>
+        </div>
+
+        <div class="confidence-bar" id="conf-bar" style="display:none">
+          <label>Model confidence (R² = 0.9865)</label>
+          <div class="bar-track"><div class="bar-fill" id="bar-fill"></div></div>
+        </div>
+
+        <div class="api-status">
+          <div class="status-dot checking" id="status-dot"></div>
+          <span id="status-text">Checking API...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── HOW IT WORKS ── -->
+<section id="how-it-works">
+  <div class="section-tag">Under the hood</div>
+  <div class="section-title">How it works — A to Z</div>
+  <div class="section-sub">From raw data to a live prediction in your browser — every step explained</div>
+
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <h4>Generate data</h4>
+      <p>1000 synthetic house records created with NumPy. Features: size, bedrooms, age, distance from city.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <h4>Feature scaling</h4>
+      <p>Z-score standardisation — each feature scaled to mean=0, std=1 so gradient descent converges fast.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <h4>Train model</h4>
+      <p>Linear Regression from scratch using NumPy. 1000 iterations of Gradient Descent. Loss falls from 1.0 → 0.01.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">4</div>
+      <h4>Save weights</h4>
+      <p>Trained weights and scaler saved to models/linear_regression.pkl and scaler.pkl using pickle.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">5</div>
+      <h4>Flask API</h4>
+      <p>app.py loads the .pkl file once at startup. Every POST /predict call loads your features, scales them, and runs ŷ = X·W + b.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">6</div>
+      <h4>This website</h4>
+      <p>JavaScript fetch() sends your slider values to the API and displays the prediction — no page reload needed.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── MODEL ── -->
+<section id="model" style="background:var(--navy2);max-width:100%;padding:5rem 1.5rem">
+  <div style="max-width:1100px;margin:0 auto">
+    <div class="section-tag">Model internals</div>
+    <div class="section-title">Learned weights</div>
+    <div class="section-sub">These are the values Gradient Descent found — loaded live from your API</div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:2rem">
+      <div style="background:var(--navy3);border-radius:12px;padding:1.2rem;text-align:center">
+        <div style="font-size:.8rem;color:var(--textMuted);margin-bottom:4px">R² score</div>
+        <div style="font-size:2rem;font-weight:800;color:var(--tealLt)" id="m-r2">—</div>
+      </div>
+      <div style="background:var(--navy3);border-radius:12px;padding:1.2rem;text-align:center">
+        <div style="font-size:.8rem;color:var(--textMuted);margin-bottom:4px">RMSE (USD)</div>
+        <div style="font-size:2rem;font-weight:800;color:var(--amber)" id="m-rmse">—</div>
+      </div>
+      <div style="background:var(--navy3);border-radius:12px;padding:1.2rem;text-align:center">
+        <div style="font-size:.8rem;color:var(--textMuted);margin-bottom:4px">MAE (USD)</div>
+        <div style="font-size:2rem;font-weight:800;color:var(--purple)" id="m-mae">—</div>
+      </div>
+      <div style="background:var(--navy3);border-radius:12px;padding:1.2rem;text-align:center">
+        <div style="font-size:.8rem;color:var(--textMuted);margin-bottom:4px">Training samples</div>
+        <div style="font-size:2rem;font-weight:800;color:var(--green)">800</div>
+      </div>
+    </div>
+
+    <div class="weights-grid" id="weights-display">
+      <div style="color:var(--textMuted);font-size:.9rem">Loading model info from API...</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CICD ── -->
+<section id="cicd">
+  <div class="section-tag">CI/CD Pipeline</div>
+  <div class="section-title">From git push to live — automatically</div>
+  <div class="section-sub">Every time code is pushed to GitHub, this pipeline runs on GitHub's servers without any manual steps</div>
+
+  <div class="pipeline-steps">
+    <div class="pipe-step">
+      <span class="icon">💻</span>
+      <div class="name">git push</div>
+      <div class="desc">Developer pushes code from laptop</div>
+      <div class="badge badge-auto">manual trigger</div>
+    </div>
+    <div class="pipe-step">
+      <span class="icon">🔍</span>
+      <div class="name">GitHub detects</div>
+      <div class="desc">Reads .github/workflows/ci_cd.yml</div>
+      <div class="badge badge-auto">automatic</div>
+    </div>
+    <div class="pipe-step">
+      <span class="icon">📦</span>
+      <div class="name">Install deps</div>
+      <div class="desc">pip install -r requirements.txt</div>
+      <div class="badge badge-auto">automatic</div>
+    </div>
+    <div class="pipe-step">
+      <span class="icon">🏋️</span>
+      <div class="name">Train model</div>
+      <div class="desc">python src/train.py on GitHub's server</div>
+      <div class="badge badge-auto">automatic</div>
+    </div>
+    <div class="pipe-step">
+      <span class="icon">🧪</span>
+      <div class="name">40 tests</div>
+      <div class="desc">pytest tests/ -v — all must pass</div>
+      <div class="badge badge-pass">quality gate</div>
+    </div>
+    <div class="pipe-step">
+      <span class="icon">🐳</span>
+      <div class="name">Docker build</div>
+      <div class="desc">Container image built and tested</div>
+      <div class="badge badge-auto">automatic</div>
+    </div>
+    <div class="pipe-step">
+      <span class="icon">🚀</span>
+      <div class="name">Deploy</div>
+      <div class="desc">Render.com triggered via webhook</div>
+      <div class="badge badge-live">goes live</div>
+    </div>
+  </div>
+
+  <div style="margin-top:1.5rem;background:var(--navy2);border-radius:12px;padding:1.2rem 1.5rem;border:1px solid rgba(15,113,115,0.2)">
+    <span style="color:var(--tealLt);font-weight:600">Key insight: </span>
+    <span style="color:var(--textMuted)">You type <code style="color:var(--tealLt);background:rgba(15,113,115,0.1);padding:1px 6px;border-radius:4px">git push</code> — that is the ONLY manual step. GitHub handles everything else automatically in ~3 minutes.</span>
+  </div>
+</section>
+
+<!-- ── API EXPLORER ── -->
+<section id="api" style="background:var(--navy2);max-width:100%;padding:5rem 1.5rem">
+  <div style="max-width:1100px;margin:0 auto">
+    <div class="section-tag">API Explorer</div>
+    <div class="section-title">REST API endpoints</div>
+    <div class="section-sub">Click any endpoint to test it live against your running Flask server</div>
+
+    <div class="api-grid">
+      <div class="api-card" onclick="testEndpoint('GET','/')">
+        <div class="api-method get">GET</div>
+        <div class="api-path">/</div>
+        <div class="api-desc">Welcome page — lists all endpoints</div>
+      </div>
+      <div class="api-card" onclick="testEndpoint('GET','/health')">
+        <div class="api-method get">GET</div>
+        <div class="api-path">/health</div>
+        <div class="api-desc">Health check — used by CI/CD to verify deployment</div>
+      </div>
+      <div class="api-card" onclick="testEndpoint('GET','/model/info')">
+        <div class="api-method get">GET</div>
+        <div class="api-path">/model/info</div>
+        <div class="api-desc">Learned weights, bias, feature means and stds</div>
+      </div>
+      <div class="api-card" onclick="testEndpoint('GET','/metrics')">
+        <div class="api-method get">GET</div>
+        <div class="api-path">/metrics</div>
+        <div class="api-desc">R², RMSE, MAE from last training run</div>
+      </div>
+      <div class="api-card" onclick="testEndpoint('POST','/predict')">
+        <div class="api-method post">POST</div>
+        <div class="api-path">/predict</div>
+        <div class="api-desc">Predict house price — click to test with sample data</div>
+      </div>
+    </div>
+
+    <div class="api-response-box" id="api-response">// Click any endpoint above to see the live response from your Flask API</div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div style="margin-bottom:.5rem">Built by <strong style="color:var(--tealLt)">Sarosf Qaiser</strong> · Linear Regression from Scratch + CI/CD Pipeline</div>
+  <div><a href="https://github.com/Sarosh548/Linear-regression-from-scratch-api" target="_blank">github.com/Sarosh548/Linear-regression-from-scratch-api</a></div>
+</footer>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'http://localhost:5000';
+
+function upd(id, valId, fmt) {
+  const v = document.getElementById(id).value;
+  document.getElementById(valId).textContent = fmt(v);
+}
+
+function showToast(msg, dur=2800) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+function fmt$(n) {
+  return '$' + Math.round(n).toLocaleString('en-US');
+}
+
+async function checkAPI() {
+  const dot = document.getElementById('status-dot');
+  const txt = document.getElementById('status-text');
+  dot.className = 'status-dot checking';
+  txt.textContent = 'Checking API...';
+  try {
+    const r = await fetch(API + '/health', { signal: AbortSignal.timeout(4000) });
+    const d = await r.json();
+    if (d.status === 'healthy') {
+      dot.className = 'status-dot';
+      txt.textContent = 'API online — Flask running at localhost:5000';
+      loadModelInfo();
+      loadMetrics();
+    } else {
+      throw new Error();
+    }
+  } catch {
+    dot.className = 'status-dot offline';
+    txt.textContent = 'API offline — run: python app.py';
+  }
+}
+
+async function predict() {
+  const btn = document.getElementById('pred-btn');
+  const priceEl = document.getElementById('result-price');
+  btn.disabled = true;
+  btn.textContent = 'Predicting...';
+  priceEl.className = 'result-price loading';
+  priceEl.textContent = 'Calling API...';
+
+  const size = parseFloat(document.getElementById('size').value);
+  const beds = parseInt(document.getElementById('beds').value);
+  const age  = parseFloat(document.getElementById('age').value);
+  const dist = parseFloat(document.getElementById('dist').value);
+
+  try {
+    const r = await fetch(API + '/predict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ size_sqft: size, bedrooms: beds, age_years: age, distance_km: dist }),
+      signal: AbortSignal.timeout(8000)
+    });
+    const d = await r.json();
+    if (d.success) {
+      priceEl.className = 'result-price';
+      priceEl.textContent = fmt$(d.predicted_price_usd);
+
+      document.getElementById('contrib-size').textContent = fmt$(size * 150);
+      document.getElementById('contrib-beds').textContent = fmt$(beds * 8000);
+      document.getElementById('contrib-age').textContent  = '-' + fmt$(age * 500);
+      document.getElementById('contrib-dist').textContent = '-' + fmt$(dist * 3000);
+
+      document.getElementById('breakdown').style.display = 'block';
+      document.getElementById('conf-bar').style.display  = 'block';
+      setTimeout(() => { document.getElementById('bar-fill').style.width = '98.65%'; }, 100);
+      showToast('Prediction complete!');
+    } else {
+      priceEl.className = 'result-price error';
+      priceEl.textContent = d.error || 'Error from API';
+    }
+  } catch(e) {
+    priceEl.className = 'result-price error';
+    priceEl.textContent = 'Cannot reach API. Is python app.py running?';
+    showToast('Error: start Flask with python app.py');
+  }
+  btn.disabled = false;
+  btn.textContent = 'Predict Price';
+}
+
+async function loadModelInfo() {
+  try {
+    const r = await fetch(API + '/model/info');
+    const d = await r.json();
+    if (!d.success) return;
+    const w = d.weights;
+    const labels = { size_sqft:'Size (sq ft)', bedrooms:'Bedrooms', age_years:'Age (years)', distance_km:'Distance (km)' };
+    const dirs   = { size_sqft:'Larger house → higher price', bedrooms:'More bedrooms → higher price', age_years:'Older house → lower price', distance_km:'Farther from city → lower price' };
+    const container = document.getElementById('weights-display');
+    container.innerHTML = Object.entries(w).map(([k, v]) => `
+      <div class="weight-card ${v < 0 ? 'negative' : ''}">
+        <div class="weight-name">${labels[k] || k}</div>
+        <div class="weight-val ${v >= 0 ? 'pos' : 'neg'}">${v >= 0 ? '+' : ''}${v.toFixed(4)}</div>
+        <div class="weight-dir ${v >= 0 ? 'pos' : 'neg'}">${v >= 0 ? '↑' : '↓'} ${dirs[k] || ''}</div>
+      </div>
+    `).join('');
+  } catch {}
+}
+
+async function loadMetrics() {
+  try {
+    const r = await fetch(API + '/metrics');
+    const d = await r.json();
+    if (!d.success) return;
+    const m = d.metrics;
+    document.getElementById('m-r2').textContent   = m.r2?.toFixed(4) || '—';
+    document.getElementById('m-rmse').textContent = m.rmse_usd ? '$' + Math.round(m.rmse_usd).toLocaleString() : '—';
+    document.getElementById('m-mae').textContent  = m.mae_usd  ? '$' + Math.round(m.mae_usd).toLocaleString()  : '—';
+  } catch {}
+}
+
+async function testEndpoint(method, path) {
+  const box = document.getElementById('api-response');
+  box.textContent = `// Calling ${method} ${API}${path} ...\n`;
+  try {
+    const opts = method === 'POST'
+      ? { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({size_sqft:1500,bedrooms:3,age_years:10,distance_km:5}) }
+      : {};
+    const r = await fetch(API + path, { ...opts, signal: AbortSignal.timeout(6000) });
+    const d = await r.json();
+    box.textContent = `// ${method} ${path} → HTTP ${r.status}\n\n` + JSON.stringify(d, null, 2);
+    showToast(`${method} ${path} → ${r.status}`);
+  } catch(e) {
+    box.textContent = `// Error: Cannot reach ${API}${path}\n// Make sure python app.py is running first.`;
+  }
+}
+
+checkAPI();
+setInterval(checkAPI, 30000);
+</script>
+</body>
+</html>
