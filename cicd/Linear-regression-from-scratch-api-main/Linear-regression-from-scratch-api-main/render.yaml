@@ -1,0 +1,50 @@
+# ====================================================================
+# render.yaml
+# ====================================================================
+# This file tells Render.com HOW to deploy your application.
+#
+# Render is a cloud platform (like Heroku) that hosts web apps for free.
+# When you connect your GitHub repo to Render, it reads this file
+# and automatically configures your deployment.
+#
+# STEPS TO USE:
+#   1. Go to https://render.com and sign up (free)
+#   2. Click "New" → "Blueprint" → connect your GitHub repo
+#   3. Render reads this file automatically
+#   4. Copy the Deploy Hook URL → save as RENDER_DEPLOY_HOOK in GitHub Secrets
+# ====================================================================
+
+services:
+  - type: web                          # this is a web service (HTTP server)
+    name: house-price-lr               # name shown in Render dashboard
+    runtime: python                    # we're using Python
+    region: oregon                     # closest to most users (or choose frankfurt)
+    plan: free                         # free tier (spins down after 15min inactivity)
+
+    # ── Build phase ────────────────────────────────────────────
+    # These commands run ONCE when deploying a new version
+    buildCommand: |
+      pip install -r requirements.txt
+      python data/generate_data.py
+      python src/train.py
+
+    # ── Start phase ────────────────────────────────────────────
+    # This command starts your server
+    startCommand: gunicorn --workers 2 --bind 0.0.0.0:$PORT --timeout 120 app:app
+
+    # ── Environment variables ──────────────────────────────────
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.10.0"
+      - key: FLASK_DEBUG
+        value: "false"
+      - key: PORT
+        value: "10000"               # Render assigns PORT automatically
+
+    # ── Health check ───────────────────────────────────────────
+    # Render pings this URL to know if your app is running
+    healthCheckPath: /health
+
+    # ── Auto-deploy ────────────────────────────────────────────
+    # Set to false because our GitHub Actions pipeline controls deploys
+    autoDeploy: false
