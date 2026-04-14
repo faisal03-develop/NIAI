@@ -1,0 +1,63 @@
+# ============================================================
+# .gitignore
+# ============================================================
+# Files and folders that should NOT be committed to GitHub.
+#
+# WHY?
+#   - Sensitive data (API keys, passwords) should NEVER be in Git
+#   - Large binary files (model weights) make repos slow
+#   - Auto-generated files (pycache) clutter the repo
+#   - Virtual environments are huge and machine-specific
+# ============================================================
+
+# ── Python ───────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.pyc
+
+# ── Virtual environments ─────────────────────────────────────
+venv/
+env/
+.venv/
+ENV/
+
+# ── Trained model binaries ───────────────────────────────────
+# Models are large binary files — store them on a model registry
+# (MLflow, DVC, S3) not in Git.
+# In this project, the CI/CD pipeline retrains the model fresh.
+models/*.pkl
+
+# ── Jupyter notebooks checkpoints ───────────────────────────
+.ipynb_checkpoints/
+notebooks/.ipynb_checkpoints/
+
+# ── IDE settings ─────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Environment variables / secrets ─────────────────────────
+.env
+.env.local
+.env.production
+*.secret
+
+# ── Coverage reports ─────────────────────────────────────────
+.coverage
+htmlcov/
+.pytest_cache/
+
+# ── Build artifacts ──────────────────────────────────────────
+dist/
+build/
+*.egg-info/
+
+# ── Logs ─────────────────────────────────────────────────────
+*.log
+logs/
