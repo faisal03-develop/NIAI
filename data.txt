@@ -1,0 +1,20 @@
+1. Hello there! I'm learning machine learning in 2026.
+2. Data science is amazing, isn't it?
+3. Python, R, and Julia are popular languages for analytics.
+4. AI models can process huge amounts of data quickly.
+5. Sometimes datasets contain noise!!! $$$ ###.
+6. Natural language processing helps computers understand text.
+7. Deep learning requires large datasets and GPUs.
+8. Statistics and probability are important for ML.
+9. Cleaning data is often the hardest part of data science.
+10. Kaggle competitions help improve machine learning skills.
+11. Regression models predict continuous values.
+12. Classification algorithms categorize data into groups.
+13. Neural networks are inspired by the human brain.
+14. Feature engineering can improve model performance.
+15. Overfitting happens when a model memorizes training data.
+16. Regularization techniques help prevent overfitting.
+17. Machine learning pipelines automate workflows.
+18. Good datasets contain relevant and clean information.
+19. Visualization helps understand patterns in data.
+20. Practice and experimentation are key in AI development.
